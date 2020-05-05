@@ -1,22 +1,28 @@
 const path = require("path");
+const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-//const webpack = require("webpack");
 
 module.exports = {
   /* 入口 */
-  entry: ["react-hot-loader/patch", path.join(__dirname, "src/index.js")],
+  //entry: ["react-hot-loader/patch", path.join(__dirname, "src/index.js")],
+  entry: {
+    app: ["react-hot-loader/patch", path.join(__dirname, "src/index.js")],
+    vendor: ["react", "react-dom", "react-router-dom", "redux", "react-redux"]
+  },
 
   /* 输出到dist文件夹，输出文件名字为bundle.js */
-  output: { // 配置webpack打包的相关信息
+  output: {
+    // 配置webpack打包的相关信息
     path: path.join(__dirname, "./dist"),
-    filename: "[name].[hash].js", //"bundle.js",
+    filename: "[name].[hash].js", //"bundle.js", // 这里应该用chunkhash替换hash，但webpack dev不兼容chunkhash
     chunkFilename: "[name].[chunkhash].js"
   },
 
   /* src文件夹下面的以.js结尾的文件，要使用babel解析 */
   /* cacheDirectory是用来缓存编译结果，下次编译加速 */
   module: {
-    rules: [ // 配置webpack的loader用以支持各类型资源的模块化使用
+    rules: [
+      // 配置webpack的loader用以支持各类型资源的模块化使用
       {
         test: /\.js$/,
         use: ["babel-loader?cacheDirectory=true"],
@@ -41,7 +47,8 @@ module.exports = {
     ]
   },
 
-  devServer: { // 配置webpack dev服务器的相关信息
+  devServer: {
+    // 配置webpack dev服务器的相关信息
     port: 8088,
     contentBase: path.join(__dirname, "./dist"),
     historyApiFallback: true,
@@ -67,6 +74,9 @@ module.exports = {
       filename: "index.html",
       template: path.join(__dirname, "src/index.html")
     }),
+    new webpack.optimize.CommonChunkPlugin({
+      name: "vendor"
+    })
     //new webpack.HotModuleReplacementPlugin()
     /* HRM配置其实有两种方式，一种CLI方式，一种Node.js API方式。我们用到的就是CLI方式，比较简单。
     而配置CLI的HRM又有两种方式，一种是在webpack.dev.config.js中进行配置，另外一种则是在启动命令时使用--hot参数 */
