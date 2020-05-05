@@ -1,7 +1,16 @@
 import React, { Component } from "react";
 
+import "./Page1.css";
+
+import image from "./images/Chrysanthemum.jpg";
+
 export default class Page1 extends Component {
   render() {
-    return <div>this is Page1~</div>;
+    return (
+      <div className="page-box">
+        this is Page1~
+        <img src={image} />
+      </div>
+    );
   }
 }

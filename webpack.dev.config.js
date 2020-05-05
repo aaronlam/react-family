@@ -8,7 +8,8 @@ module.exports = {
   /* 输出到dist文件夹，输出文件名字为bundle.js */
   output: {
     path: path.join(__dirname, "./dist"),
-    filename: "bundle.js"
+    filename: "bundle.js",
+    chunkFilename: "[name].js"
   },
 
   /* src文件夹下面的以.js结尾的文件，要使用babel解析 */
@@ -19,6 +20,22 @@ module.exports = {
         test: /\.js$/,
         use: ["babel-loader?cacheDirectory=true"],
         include: path.join(__dirname, "src")
+      },
+      {
+        test: /\.css$/,
+        use: ["style-loader", "css-loader"],
+        include: path.join(__dirname, "src")
+      },
+      {
+        test: /\.(png|jpg|gif)$/,
+        use: [
+          {
+            loader: "url-loader",
+            options: {
+              limit: 8192 // options limit 8192意思是，小于等于8K的图片会被转成base64编码，直接插入HTML中，减少HTTP请求。
+            }
+          }
+        ]
       }
     ]
   },
@@ -35,10 +52,12 @@ module.exports = {
     alias: {
       pages: path.join(__dirname, "src/pages"),
       components: path.join(__dirname, "src/components"),
-      routers: path.join(__dirname, "src/routers"),
+      routers: path.join(__dirname, "src/routers")
       //redux: path.join(__dirname, "src/redux")
     }
-  }
+  },
+
+  devtool: "inline-source-map" // devtool报错信息显示优化
 
   //plugins: [new webpack.HotModuleReplacementPlugin()]
   /* HRM配置其实有两种方式，一种CLI方式，一种Node.js API方式。我们用到的就是CLI方式，比较简单。
