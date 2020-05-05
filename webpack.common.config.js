@@ -52,9 +52,10 @@ commonConfig = {
     alias: {
       pages: path.join(__dirname, "src/pages"),
       components: path.join(__dirname, "src/components"),
-      routers: path.join(__dirname, "src/routers")
+      routers: path.join(__dirname, "src/routers"),
       // actions: path.join(__dirname, 'src/redux/actions'),
-      // reducers: path.join(__dirname, 'src/redux/reducers')
+      // reducers: path.join(__dirname, 'src/redux/reducers'),
+      mock: path.join(__dirname, "mock")
     }
   }
 };

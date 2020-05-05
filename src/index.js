@@ -3,8 +3,9 @@ import ReactDom from "react-dom";
 import { BrowserRouter as Router } from "react-router-dom";
 import getRouter from "routers/router";
 import { Provider } from "react-redux";
-import store from "./redux/store";
 import { AppContainer } from "react-hot-loader";
+import "../mock/mock";
+import store from "./redux/store";
 import Hello from "components/Hello/Hello";
 import App from "components/App/App";
 
