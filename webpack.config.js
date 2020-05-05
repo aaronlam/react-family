@@ -1,6 +1,9 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const UglifyJSPlugin = require("uglifyjs-webpack-plugin");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
 
 module.exports = {
   /* 入口 */
@@ -14,8 +17,9 @@ module.exports = {
   output: {
     // 配置webpack打包的相关信息
     path: path.join(__dirname, "./dist"),
-    filename: "[name].[hash].js", //"bundle.js", // 这里应该用chunkhash替换hash，但webpack dev不兼容chunkhash
-    chunkFilename: "[name].[chunkhash].js"
+    filename: "[name].[chunkhash].js", //"bundle.js", // 这里应该用chunkhash替换hash，但webpack dev不兼容chunkhash
+    chunkFilename: "[name].[chunkhash].js",
+    publicPath: "/"
   },
 
   /* src文件夹下面的以.js结尾的文件，要使用babel解析 */
@@ -30,8 +34,11 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
-        include: path.join(__dirname, "src")
+        use: ExtractTextPlugin.extract({
+          // 抽取CSS
+          fallback: "style-loader",
+          use: "css-loader"
+        })
       },
       {
         test: /\.(png|jpg|gif)$/,
@@ -47,15 +54,6 @@ module.exports = {
     ]
   },
 
-  devServer: {
-    // 配置webpack dev服务器的相关信息
-    port: 8088,
-    contentBase: path.join(__dirname, "./dist"),
-    historyApiFallback: true,
-    host: "0.0.0.0",
-    hotOnly: true
-  },
-
   resolve: {
     alias: {
       // 配置路径别名
@@ -66,7 +64,7 @@ module.exports = {
     }
   },
 
-  devtool: "inline-source-map", // 配置devtool报错信息显示优化
+  devtool: "cheap-module-source-map", // 配置devtool报错信息显示优化
 
   plugins: [
     new HtmlWebpackPlugin({
@@ -75,7 +73,24 @@ module.exports = {
       template: path.join(__dirname, "src/index.html")
     }),
     new webpack.optimize.CommonsChunkPlugin({
-      name: "vendor"
+      // 抽取公共库的chunk，注意，引入顺序在这里很重要。CommonsChunkPlugin 的 'vendor' 实例，必须在 'runtime' 实例之前引入。
+      name: "vendor",
+      // 抽取runtime的chunk，优化浏览器缓存
+      name: "runtime"
+    }),
+    new UglifyJSPlugin(), // 压缩JS代码
+    new webpack.DefinePlugin({
+      // 指定环境
+      "process.env": {
+        NODE_ENV: JSON.stringify("production")
+      }
+    }),
+    new webpack.HashedModuleIdsPlugin(), // 优化缓存
+    new CleanWebpackPlugin(["dist"]), // 打包优化，每次清除之前的chunk
+    new ExtractTextPlugin({
+      // 抽取CSS
+      filename: "[name].[contenthash:5].css",
+      allChunks: true
     })
     //new webpack.HotModuleReplacementPlugin()
     /* HRM配置其实有两种方式，一种CLI方式，一种Node.js API方式。我们用到的就是CLI方式，比较简单。
